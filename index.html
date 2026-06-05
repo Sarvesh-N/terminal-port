@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sarvesh N - Terminal Portfolio</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><path fill='%238BE9FD' d='M2 2a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H2zm.5 3l3 3-3 3-.7-.7L4.1 8 1.8 5.7l.7-.7zm4 5.5h4v1h-4v-1z'/></svg>">
     <style>
@@ -16,8 +16,7 @@
             background-color: #0d1117;
             color: #c9d1d9;
             font-family: 'Courier New', Courier, monospace;
-            height: 100vh; /* Fallback for older browsers */
-            height: 100dvh; /* Dynamic viewport height for mobile browser UI */
+            height: 100vh;
             display: flex;
             flex-direction: column;
             padding: 20px;
@@ -37,7 +36,7 @@
 
         .command-hints span {
             cursor: pointer;
-            transition: color 0.2s, background-color 0.2s;
+            transition: color 0.2s;
         }
 
         .command-hints span:hover {
@@ -65,7 +64,6 @@
             margin-bottom: 10px;
             line-height: 1.5;
             white-space: pre-wrap;
-            word-wrap: break-word; /* Ensure long text wraps */
         }
 
         /* Clickable Link Styles */
@@ -74,7 +72,6 @@
             text-decoration: none;
             border-bottom: 1px dotted #8BE9FD;
             transition: color 0.2s, border-bottom-color 0.2s;
-            word-break: break-all; /* Prevent long URLs from breaking mobile layout */
         }
 
         .output-line a:hover {
@@ -93,7 +90,6 @@
             display: flex;
             align-items: center;
             margin-top: 5px;
-            padding-bottom: 20px; /* Extra padding so text isn't flush against the bottom edge */
         }
 
         .prompt-container {
@@ -107,53 +103,17 @@
             border: none;
             color: #c9d1d9;
             font-family: 'Courier New', Courier, monospace;
-            font-size: 16px; /* Forces 16px to stop iOS Safari from auto-zooming */
+            font-size: 1rem;
             flex-grow: 1;
             outline: none;
             caret-color: #c9d1d9;
-            min-width: 50px; /* Prevents input from completely collapsing */
-        }
-
-        /* ========================================= */
-        /* MOBILE RESPONSIVENESS           */
-        /* ========================================= */
-        @media (max-width: 600px) {
-            body {
-                padding: 10px; /* Less padding to save screen real estate */
-            }
-
-            /* Make hints tap-friendly (fat-finger friendly) */
-            .command-hints {
-                gap: 8px;
-                justify-content: center;
-            }
-
-            .command-hints span {
-                padding: 6px 10px;
-                background-color: rgba(255, 255, 255, 0.05);
-                border-radius: 6px;
-                border: 1px solid #30363d;
-            }
-
-            .command-hints span:active {
-                background-color: #30363d;
-            }
-
-            /* Shorten the prompt string on mobile to make room for typing */
-            .zsh-user, .zsh-at, .zsh-host {
-                display: none; 
-            }
-            
-            .zsh-dir {
-                margin-left: 0; /* Adjust spacing since preceding text is hidden */
-            }
         }
     </style>
 </head>
 <body>
 
     <div class="command-hints" id="hints">
-        <span>help</span><span>about</span><span>projects</span><span>skills</span><span>experience</span><span>contact</span><span>education</span><span>certifications</span><span>sudo</span><span>clear</span>
+        <span>help</span> | <span>about</span> | <span>projects</span> | <span>skills</span> | <span>experience</span> | <span>contact</span> | <span>education</span> | <span>certifications</span> | <span>sudo</span> | <span>clear</span>
     </div>
 
     <div class="terminal-container" id="terminal">
@@ -172,7 +132,7 @@ Type 'help' to see available commands.</div>
             <div class="prompt-container" id="base-prompt">
                 <span class="zsh-user">sarvesh</span><span class="zsh-at">@</span><span class="zsh-host">portfolio</span><span class="zsh-dir">~</span><span class="zsh-arrow">❯</span>
             </div>
-            <input type="text" id="commandInput" class="terminal-input" autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false" autofocus>
+            <input type="text" id="commandInput" class="terminal-input" autocomplete="off" autofocus>
         </div>
     </div>
 
@@ -362,12 +322,7 @@ Type 'help' to see available commands.`
             newInput.type = 'text';
             newInput.id = 'commandInput';
             newInput.className = 'terminal-input';
-            
-            // Add attributes to prevent annoying mobile keyboard pop-ups changing text
             newInput.autocomplete = 'off';
-            newInput.autocorrect = 'off';
-            newInput.autocapitalize = 'none';
-            newInput.spellcheck = false;
 
             // Attach the same keydown listener to the newly generated input field
             newInput.addEventListener('keydown', handleInputKeydown);
@@ -376,20 +331,14 @@ Type 'help' to see available commands.`
             inputContainer.appendChild(newInput);
             terminal.appendChild(inputContainer);
 
-            // Slightly delay focus to ensure smooth rendering on mobile devices
-            setTimeout(() => {
-                newInput.focus();
-                terminal.scrollTop = terminal.scrollHeight;
-            }, 10);
+            newInput.focus();
+            terminal.scrollTop = terminal.scrollHeight;
         }
 
         // Keep input focused when clicking anywhere in the terminal window
         terminal.addEventListener('click', () => {
             const activeInput = document.getElementById('commandInput');
-            // Check if user is trying to select text, if so, do not steal focus
-            if (activeInput && window.getSelection().toString() === '') {
-                activeInput.focus();
-            }
+            if (activeInput) activeInput.focus();
         });
     </script>
 </body>
