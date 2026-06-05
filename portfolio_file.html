@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sarvesh N - Terminal Portfolio</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><path fill='%238BE9FD' d='M2 2a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H2zm.5 3l3 3-3 3-.7-.7L4.1 8 1.8 5.7l.7-.7zm4 5.5h4v1h-4v-1z'/></svg>">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: #0d1117;
+            color: #c9d1d9;
+            font-family: 'Courier New', Courier, monospace;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+        }
+
+        /* Top Command Hint Bar */
+        .command-hints {
+            color: #8b949e;
+            font-size: 0.9rem;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #30363d;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .command-hints span {
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .command-hints span:hover {
+            color: #58a6ff;
+        }
+
+        /* Terminal Window */
+        .terminal-container {
+            flex-grow: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            padding-right: 10px;
+        }
+
+        .terminal-container::-webkit-scrollbar {
+            width: 8px;
+        }
+        .terminal-container::-webkit-scrollbar-thumb {
+            background: #30363d;
+            border-radius: 4px;
+        }
+
+        .output-line {
+            margin-bottom: 10px;
+            line-height: 1.5;
+            white-space: pre-wrap;
+        }
+
+        /* Clickable Link Styles */
+        .output-line a {
+            color: #8BE9FD;
+            text-decoration: none;
+            border-bottom: 1px dotted #8BE9FD;
+            transition: color 0.2s, border-bottom-color 0.2s;
+        }
+
+        .output-line a:hover {
+            color: #58a6ff;
+            border-bottom: 1px solid #58a6ff;
+        }
+
+        /* --- ZSH PROMPT COLORS --- */
+        .zsh-user { color: #8BE9FD; font-weight: bold; } /* Cyan */
+        .zsh-at   { color: #F8F8F2; }                    /* White */
+        .zsh-host { color: #50FA7B; font-weight: bold; } /* Green */
+        .zsh-dir  { color: #FF79C6; font-weight: bold; margin-left: 8px; } /* Pink */
+        .zsh-arrow{ color: #FF5555; font-weight: bold; margin-left: 8px; margin-right: 8px; } /* Red */
+
+        .user-input-line {
+            display: flex;
+            align-items: center;
+            margin-top: 5px;
+        }
+
+        .prompt-container {
+            display: flex;
+            align-items: center;
+            white-space: pre;
+        }
+
+        .terminal-input {
+            background: transparent;
+            border: none;
+            color: #c9d1d9;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 1rem;
+            flex-grow: 1;
+            outline: none;
+            caret-color: #c9d1d9;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="command-hints" id="hints">
+        <span>help</span> | <span>about</span> | <span>projects</span> | <span>skills</span> | <span>experience</span> | <span>contact</span> | <span>education</span> | <span>certifications</span> | <span>sudo</span> | <span>clear</span>
+    </div>
+
+    <div class="terminal-container" id="terminal">
+        <div class="output-line"><span class="zsh-user">sarvesh</span><span class="zsh-at">@</span><span class="zsh-host">portfolio</span><span class="zsh-dir">~</span><span class="zsh-arrow">❯</span>welcome</div>
+        <div class="output-line">Hey I'm Sarvesh N — CS Engineering Graduate.
+I'm a FOSS enthusiast passionate about DevOps and cloud infrastructure. I love automation, reliable pipelines, and cloud-native system design.
+
+Freelance services I offer:
+  →  DevOps Consulting
+  →  Cloud Infrastructure Design
+  →  Software Development
+
+Type 'help' to see available commands.</div>
+        
+        <div class="user-input-line">
+            <div class="prompt-container" id="base-prompt">
+                <span class="zsh-user">sarvesh</span><span class="zsh-at">@</span><span class="zsh-host">portfolio</span><span class="zsh-dir">~</span><span class="zsh-arrow">❯</span>
+            </div>
+            <input type="text" id="commandInput" class="terminal-input" autocomplete="off" autofocus>
+        </div>
+    </div>
+
+    <script>
+        const terminal = document.getElementById('terminal');
+        const input = document.getElementById('commandInput');
+        const hints = document.querySelectorAll('.command-hints span');
+
+        // The HTML string for the ZSH prompt to reuse
+        const promptHTML = `<span class="zsh-user">sarvesh</span><span class="zsh-at">@</span><span class="zsh-host">portfolio</span><span class="zsh-dir">~</span><span class="zsh-arrow">❯</span>`;
+
+        // Command Responses Dictionary
+        const commands = {
+            'help': `Available commands:
+- about         : Learn more about me
+- projects      : View my recent work
+- skills        : My technical toolbox
+- experience    : My professional background
+- contact       : How to reach me
+- education     : Academic background
+- certifications: My earned credentials
+- clear         : Clear the terminal
+
+Terminal Features:
+- [Tab]         : Auto-complete commands
+- [Up/Down]     : Navigate command history`,
+            
+            'about': `Hey I'm Sarvesh N — CS Engineering Graduate.
+I'm a FOSS enthusiast passionate about DevOps and cloud infrastructure. I love automation, reliable pipelines, and cloud-native system design.
+
+Freelance services I offer:
+  →  DevOps Consulting
+  →  Cloud Infrastructure Design
+  →  Software Development`,
+            
+            'projects': `1. <a href="https://github.com/Sarvesh-N/flask-app-aws-deployment" target="_blank">Flask App AWS Deployment</a>: A Flask-based Event Management application deployed on AWS using EC2 and RDS within a custom VPC. Configured with secure networking, Nginx, and Gunicorn for production deployment.
+2. <a href="https://github.com/Sarvesh-N/cost-analyzer-on-aws" target="_blank">AWS Cost Monitoring Dashboard</a>: Serverless AWS cost monitoring system using AWS Cost Explorer API, Lambda, EventBridge, and S3.
+3. <a href="https://github.com/Sarvesh-N/serverless-Log-Processing-Pipeline-on-AWS" target="_blank">AWS Serverless Log Processing Pipeline</a>: Flow: Logs uploaded to S3 trigger a Lambda function, which pushes messages to SQS. A second Lambda analyzes each log entry, stores all logs in DynamoDB, and sends SNS alerts only when an ERROR is detected.`,
+            
+            'skills': `Technical: Python, SQL, Java, FastAPI, Data Annotation, OOP Concept
+Version Control & CI/CD: Git, GitHub, Vercel, Netlify, Command Line Tools, GitHub Actions
+Tools & Cloud: Linux, AWS, Docker, Ollama, Jupyter Notebook, Vim, Power BI, Hugging Face, Terraform`,
+            
+            'experience': `Data Annotation Freelancer - Deccan AI (Jan 2026 - May 2026)
+Freelance Project Developer (Sep 2023 - Sep 2025)`,
+            
+            'contact': `Location: Coimbatore, Tamil Nadu
+LinkedIn: <a href="https://www.linkedin.com/in/sarvesh-nanthakumar/" target="_blank">linkedin.com/in/sarvesh-nanthakumar</a>
+GitHub: <a href="https://github.com/Sarvesh-N" target="_blank">github.com/Sarvesh-N</a>
+StackOverflow: <a href="https://stackoverflow.com/users/24226381/sarvs-99" target="_blank">stackoverflow.com/users/24226381/sarvs-99</a>
+Discord: sarvesh`,
+            
+            'education': `B.E in Computer Science and Engineering - SNS College Of Technology | 2022-2026 | CGPA: 7.8
+HSC - Suguna RIP V Matric HR SEC school | 2021-2022 | 75%
+SSLC - Vimal Jyothi Convent | 2019-2020 | 71%`,
+            
+            'certifications': `1. Python Programming
+2. AWS Solution Architect`,
+            
+            'sudo': 'Nice try! You do not have root privileges here.',
+            
+            'welcome': `Hey I'm Sarvesh N — CS Engineering Graduate.
+I'm a FOSS enthusiast passionate about DevOps and cloud infrastructure. I love automation, reliable pipelines, and cloud-native system design.
+
+Freelance services I offer:
+  →  DevOps Consulting
+  →  Cloud Infrastructure Design
+  →  Software Development
+
+Type 'help' to see available commands.`
+        };
+
+        // Tab Auto-Complete and History State Variables
+        let tabMatches = [];
+        let currentMatchIndex = -1;
+        let commandHistory = [];
+        let historyIndex = 0;
+
+        // Reusable function to handle all keyboard input logic
+        function handleInputKeydown(e) {
+            if (e.key === 'Enter') {
+                const command = this.value.trim().toLowerCase();
+                if (command) {
+                    // Push to history and reset the history index to the very end
+                    commandHistory.push(command);
+                    historyIndex = commandHistory.length;
+                    processCommand(command);
+                }
+                // Reset tab state on enter
+                tabMatches = [];
+                currentMatchIndex = -1;
+                
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault(); // Stop cursor from jumping to the start of the input
+                if (historyIndex > 0) {
+                    historyIndex--;
+                    this.value = commandHistory[historyIndex];
+                }
+            } else if (e.key === 'ArrowDown') {
+                e.preventDefault(); // Stop cursor from jumping to the end of the input
+                if (historyIndex < commandHistory.length - 1) {
+                    historyIndex++;
+                    this.value = commandHistory[historyIndex];
+                } else if (historyIndex === commandHistory.length - 1) {
+                    // If we are at the last command and press down, clear the input
+                    historyIndex++;
+                    this.value = '';
+                }
+            } else if (e.key === 'Tab') {
+                e.preventDefault(); // Stop browser from jumping to the next element
+                const currentVal = this.value.toLowerCase();
+                
+                // Add 'clear' explicitly so it cycles in the autocomplete
+                const availableCommands = [...Object.keys(commands), 'clear'];
+
+                // If nothing is typed yet, don't do anything
+                if (!currentVal && tabMatches.length === 0) return;
+
+                // If we are currently cycling through active matches
+                if (tabMatches.length > 0 && currentVal === tabMatches[currentMatchIndex]) {
+                    currentMatchIndex = (currentMatchIndex + 1) % tabMatches.length;
+                    this.value = tabMatches[currentMatchIndex];
+                } else {
+                    // Start a new search for matching commands
+                    tabMatches = availableCommands.filter(cmd => cmd.startsWith(currentVal));
+                    if (tabMatches.length > 0) {
+                        currentMatchIndex = 0;
+                        this.value = tabMatches[currentMatchIndex];
+                    }
+                }
+            } else {
+                // If the user types any other standard key, clear the tab memory
+                tabMatches = [];
+                currentMatchIndex = -1;
+            }
+        }
+
+        // Attach event listener to the initial input
+        input.addEventListener('keydown', handleInputKeydown);
+
+        // Allow clicking the top hints to insert/run commands
+        hints.forEach(hint => {
+            hint.addEventListener('click', () => {
+                const command = hint.textContent.trim();
+                
+                // Also add clicked commands to history
+                commandHistory.push(command.toLowerCase());
+                historyIndex = commandHistory.length;
+                
+                processCommand(command);
+            });
+        });
+
+        function processCommand(cmd) {
+            const currentInputLine = document.querySelector('.user-input-line');
+            if (currentInputLine) currentInputLine.remove();
+
+            addLog(`${promptHTML}${cmd}`);
+
+            if (cmd === 'clear') {
+                terminal.innerHTML = '';
+            } else if (commands[cmd]) {
+                addLog(commands[cmd]);
+            } else {
+                addLog(`Command not found: ${cmd}. Type 'help' for a list of available commands.`);
+            }
+
+            appendInputLine();
+        }
+
+        function addLog(htmlText) {
+            const newLine = document.createElement('div');
+            newLine.className = 'output-line';
+            newLine.innerHTML = htmlText;
+            terminal.appendChild(newLine);
+        }
+
+        function appendInputLine() {
+            const inputContainer = document.createElement('div');
+            inputContainer.className = 'user-input-line';
+            
+            const promptDiv = document.createElement('div');
+            promptDiv.className = 'prompt-container';
+            promptDiv.innerHTML = promptHTML;
+
+            const newInput = document.createElement('input');
+            newInput.type = 'text';
+            newInput.id = 'commandInput';
+            newInput.className = 'terminal-input';
+            newInput.autocomplete = 'off';
+
+            // Attach the same keydown listener to the newly generated input field
+            newInput.addEventListener('keydown', handleInputKeydown);
+
+            inputContainer.appendChild(promptDiv);
+            inputContainer.appendChild(newInput);
+            terminal.appendChild(inputContainer);
+
+            newInput.focus();
+            terminal.scrollTop = terminal.scrollHeight;
+        }
+
+        // Keep input focused when clicking anywhere in the terminal window
+        terminal.addEventListener('click', () => {
+            const activeInput = document.getElementById('commandInput');
+            if (activeInput) activeInput.focus();
+        });
+    </script>
+</body>
+</html>
