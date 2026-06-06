@@ -113,7 +113,7 @@
 <body>
 
     <div class="command-hints" id="hints">
-        <span>ls</span> | <span>about</span> | <span>projects</span> | <span>skills</span> | <span>experience</span> | <span>contact</span> | <span>education</span> | <span>certifications</span> | <span>sudo</span> | <span>clear</span> | <span>exit</span>
+        <span>ls</span> | <span>about</span> | <span>projects</span> | <span>skills</span> | <span>experience</span> | <span>contact</span> | <span>education</span> | <span>certifications</span> | <span>sudo</span> | <span>clear</span>
     </div>
 
     <div class="terminal-container" id="terminal">
@@ -155,7 +155,6 @@ Type 'ls' to see available commands.</div>
 - education     : Academic background
 - certifications: My earned credentials
 - clear         : Clear the terminal
-- exit          : Close the session
 
 Terminal Features:
 - [Tab]         : Auto-complete commands
@@ -246,8 +245,8 @@ Type 'ls' to see available commands.`
                 e.preventDefault(); // Stop browser from jumping to the next element
                 const currentVal = this.value.toLowerCase();
                 
-                // Add 'clear' and 'exit' explicitly so they cycle in the autocomplete
-                const availableCommands = [...Object.keys(commands), 'clear', 'exit'];
+                // Add 'clear' explicitly so it cycles in the autocomplete
+                const availableCommands = [...Object.keys(commands), 'clear'];
 
                 // If nothing is typed yet, don't do anything
                 if (!currentVal && tabMatches.length === 0) return;
@@ -295,25 +294,13 @@ Type 'ls' to see available commands.`
 
             if (cmd === 'clear') {
                 terminal.innerHTML = '';
-                appendInputLine();
-            } else if (cmd === 'exit') {
-                addLog('Initiating exit sequence...');
-                
-                // Slight delay to mimic terminal closing feeling
-                setTimeout(() => {
-                    window.close();
-                    
-                    // Fallback message if the browser blocks window.close()
-                    addLog('<span style="color: #FF5555;">[Process completed] Browser security policies prevent scripts from automatically closing this tab. You may close it manually.</span>');
-                    appendInputLine();
-                }, 800);
             } else if (commands[cmd]) {
                 addLog(commands[cmd]);
-                appendInputLine();
             } else {
                 addLog(`Command not found: ${cmd}. Type 'ls' for a list of available commands.`);
-                appendInputLine();
             }
+
+            appendInputLine();
         }
 
         function addLog(htmlText) {
