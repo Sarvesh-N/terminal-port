@@ -113,7 +113,7 @@
 <body>
 
     <div class="command-hints" id="hints">
-        <span>help</span> | <span>about</span> | <span>projects</span> | <span>skills</span> | <span>experience</span> | <span>contact</span> | <span>education</span> | <span>certifications</span> | <span>sudo</span> | <span>clear</span>
+        <span>ls</span> | <span>about</span> | <span>projects</span> | <span>skills</span> | <span>experience</span> | <span>contact</span> | <span>education</span> | <span>certifications</span> | <span>sudo</span> | <span>clear</span>
     </div>
 
     <div class="terminal-container" id="terminal">
@@ -126,7 +126,7 @@ Freelance services I offer:
   →  Cloud Infrastructure Design
   →  Software Development
 
-Type 'help' to see available commands.</div>
+Type 'ls' to see available commands.</div>
         
         <div class="user-input-line">
             <div class="prompt-container" id="base-prompt">
@@ -146,7 +146,7 @@ Type 'help' to see available commands.</div>
 
         // Command Responses Dictionary
         const commands = {
-            'help': `Available commands:
+            'ls': `Available commands:
 - about         : Learn more about me
 - projects      : View my recent work
 - skills        : My technical toolbox
@@ -183,7 +183,7 @@ Freelance Project Developer (Sep 2023 - Sep 2025)`,
 LinkedIn: <a href="https://www.linkedin.com/in/sarvesh-nanthakumar/" target="_blank">linkedin.com/in/sarvesh-nanthakumar</a>
 GitHub: <a href="https://github.com/Sarvesh-N" target="_blank">github.com/Sarvesh-N</a>
 StackOverflow: <a href="https://stackoverflow.com/users/24226381/sarvs-99" target="_blank">stackoverflow.com/users/24226381/sarvs-99</a>
-Discord: sarvesh`,
+Discord: sarvesh_99_`,
             
             'education': `B.E in Computer Science and Engineering - SNS College Of Technology | 2022-2026 | CGPA: 7.8
 HSC - Suguna RIP V Matric HR SEC school | 2021-2022 | 75%
@@ -202,7 +202,7 @@ Freelance services I offer:
   →  Cloud Infrastructure Design
   →  Software Development
 
-Type 'help' to see available commands.`
+Type 'ls' to see available commands.`
         };
 
         // Tab Auto-Complete and History State Variables
@@ -297,7 +297,7 @@ Type 'help' to see available commands.`
             } else if (commands[cmd]) {
                 addLog(commands[cmd]);
             } else {
-                addLog(`Command not found: ${cmd}. Type 'help' for a list of available commands.`);
+                addLog(`Command not found: ${cmd}. Type 'ls' for a list of available commands.`);
             }
 
             appendInputLine();
