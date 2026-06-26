@@ -1,1 +1,38 @@
+name: build-test-image
+
+on: 
+    push:
+        branches:
+            - main
+
+jobs:
+    build-test:
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: checking out code
+              uses: actions/checkout@v4
+
+            - name: build image 
+              run: docker build -t demo-img .
+
+            - name: tagging image
+              run: docker tag demo-img sarvs99/demo-img:latest 
+
+            - name: run docker image 
+              run: docker run -d -p 80:80 --name demo_container 80:80 sarvs99/demo-img:latest
+
+            - name: wait for app
+              run: sleep 10
+
+            - name: check if it is live 
+              run: curl http://localhost:80
+
+            - name: stop and remove container 
+              if : always()
+              run: |
+                docker stop demo_container
+                docker rm demo_container
+
+
 
