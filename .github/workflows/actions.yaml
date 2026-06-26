@@ -21,12 +21,12 @@ jobs:
 
             - name: run docker image 
               run: docker run -d --name demo_container -p 80:80 sarvs99/demo-img:latest
-              
+
             - name: wait for app
               run: sleep 10
 
             - name: check if it is live 
-              run: curl http://localhost:80
+              run: curl http://localhost:80 
 
             - name: stop and remove container 
               if : always()
