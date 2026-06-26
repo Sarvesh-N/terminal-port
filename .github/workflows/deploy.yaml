@@ -13,10 +13,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
+      - name: checking out code
         uses: actions/checkout@v4
 
-      - name: Configure AWS Credentials
+      - name: cconfigure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ vars.AWS_ACCESS_KEY_ID }}
@@ -40,7 +40,7 @@ jobs:
           docker push \
           ${{ steps.login-ecr.outputs.registry }}/${{ vars.ECR_REPOSITORY }}:latest
 
-      - name: Deploy to ECS
+      - name: deploy to ECS
         run: |
           aws ecs update-service \
             --cluster ${{ vars.ECS_CLUSTER }} \

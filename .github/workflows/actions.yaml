@@ -17,10 +17,10 @@ jobs:
               run: docker build -t demo-img .
 
             - name: tagging image
-              run: docker tag demo-img sarvs99/demo-img:latest 
+              run: docker tag demo-img demo-img:latest 
 
             - name: run docker image 
-              run: docker run -d --name demo_container -p 80:80 sarvs99/demo-img:latest
+              run: docker run -d --name demo_container -p 80:80 demo-img:latest
 
             - name: wait for app
               run: sleep 10
