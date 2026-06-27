@@ -1,14 +1,68 @@
-name: Deploy to ECS
+# name: Deploy to ECS
+
+# on:
+#   workflow_run:
+#     workflows:
+#       - build-test-image
+#     types:
+#       - completed
+
+# jobs:
+#   deploy:
+#     if: ${{ github.event.workflow_run.conclusion == 'success' }}
+#     runs-on: ubuntu-latest
+
+#     steps:
+#       - name: checking out code
+#         uses: actions/checkout@v4
+
+#       - name: cconfigure AWS credentials
+#         uses: aws-actions/configure-aws-credentials@v4
+#         with:
+#           aws-access-key-id: ${{ vars.AWS_ACCESS_KEY_ID }}
+#           aws-secret-access-key: ${{ vars.AWS_SECRET_ACCESS_KEY }}
+#           aws-region: ${{ vars.AWS_REGION }}
+
+#       - name: Login to Amazon ECR
+#         id: login-ecr
+#         uses: aws-actions/amazon-ecr-login@v2
+
+#       - name: Build Docker image
+#         run: docker build -t demo-img .
+
+#       - name: Tag image
+#         run: |
+#           docker tag demo-img:latest \
+#           ${{ steps.login-ecr.outputs.registry }}/${{ vars.ECR_REPOSITORY }}:latest
+
+#       - name: Push image to Amazon ECR
+#         run: |
+#           docker push \
+#           ${{ steps.login-ecr.outputs.registry }}/${{ vars.ECR_REPOSITORY }}:latest
+
+#       - name: deploy to ECS
+#         run: |
+#           aws ecs update-service \
+#             --cluster ${{ vars.ECS_CLUSTER }} \
+#             --service ${{ vars.ECS_SERVICE }} \
+#             --force-new-deployment
+
+
+name: deploy the image
 
 on:
   workflow_run:
     workflows:
       - build-test-image
     types:
-      - completed
+      completed 
+
+permissions:
+  id-token: write 
+  contents: read 
 
 jobs:
-  deploy:
+  deploy_image_to_ecs:
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
 
@@ -16,33 +70,27 @@ jobs:
       - name: checking out code
         uses: actions/checkout@v4
 
-      - name: cconfigure AWS credentials
+      - name: configure aws creds
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          aws-access-key-id: ${{ vars.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ vars.AWS_SECRET_ACCESS_KEY }}
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
           aws-region: ${{ vars.AWS_REGION }}
 
       - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
 
-      - name: Build Docker image
-        run: docker build -t demo-img .
+      - name: build image 
+        run: docker built -t demo-img .
 
-      - name: Tag image
+      - name: tag image 
         run: |
-          docker tag demo-img:latest \
-          ${{ steps.login-ecr.outputs.registry }}/${{ vars.ECR_REPOSITORY }}:latest
+          docker tag demo-img:latest ${{ steps.login-ecr.outputs.registry }} ${{ vars.ECR_REPOSITORY }}:latest
+      
+      - name: push to ecr 
+        run: |
+          docker push ${{ steps.login-ecr.outputs.registry }} ${{ vars.ECR_REPOSITORY }}:latest
 
-      - name: Push image to Amazon ECR
+      - name: deploying in ecs
         run: |
-          docker push \
-          ${{ steps.login-ecr.outputs.registry }}/${{ vars.ECR_REPOSITORY }}:latest
-
-      - name: deploy to ECS
-        run: |
-          aws ecs update-service \
-            --cluster ${{ vars.ECS_CLUSTER }} \
-            --service ${{ vars.ECS_SERVICE }} \
-            --force-new-deployment
+          aws-ecs update-service --cluster ${{ vars.ECS_CLUSTER }} ${{ vars.ECS_SERVICE }} --force-new-deployment
